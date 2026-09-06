@@ -1,6 +1,17 @@
 import { getDatabase } from "../services/mongodb-service.js";
-import type { Db, Document } from "mongodb";
-import type { Education, Experience, Language, NavItem, PersonalInfo, ProfileDetails, Project, Service, SkillDetail, SocialLink } from "../types/portfolio.js";
+import type { Db, Document, Filter } from "mongodb";
+import type {
+  Education,
+  Experience,
+  Language,
+  NavItem,
+  PersonalInfo,
+  ProfileDetails,
+  Project,
+  Service,
+  SkillDetail,
+  SocialLink,
+} from "../types/portfolio.js";
 
 const COLLECTIONS = {
   personal: "personal_info",
@@ -17,60 +28,181 @@ const COLLECTIONS = {
   projects: "projects",
 } as const;
 
-const collection = <T extends Document>(db: Db, name: string) => db.collection<T>(name);
+const collection = <T extends Document>(db: Db, name: string) =>
+  db.collection<T>(name);
 
-const getSingleton = async <T extends Document>(name: string): Promise<T> => {
+const getSingleton = async <T extends Document>(
+  name: string
+): Promise<T> => {
   const db = await getDatabase();
-  const document = await collection<T>(db, name).findOne({ key: "main" } as Document);
-  if (!document) throw new Error(`MongoDB collection '${name}' has not been migrated`);
-  return document;
+
+  const filter = { key: "main" } as Filter<T>;
+  const document = await collection<T>(db, name).findOne(filter);
+
+  if (!document) {
+    throw new Error(
+      `MongoDB collection '${name}' has not been migrated`
+    );
+  }
+
+  return document as T;
 };
 
-export const getPersonalInfo = () => getSingleton<PersonalInfo & { key: string }>(COLLECTIONS.personal);
-export const getProfileDetails = () => getSingleton<ProfileDetails & { key: string }>(COLLECTIONS.profile);
+export const getPersonalInfo = () =>
+  getSingleton<PersonalInfo & { key: string }>(
+    COLLECTIONS.personal
+  );
+
+export const getProfileDetails = () =>
+  getSingleton<ProfileDetails & { key: string }>(
+    COLLECTIONS.profile
+  );
+
 export const getNavigation = async (): Promise<NavItem[]> => {
   const db = await getDatabase();
-  return collection<NavItem>(db, COLLECTIONS.navigation).find({}).sort({ order: 1 }).toArray();
+
+  return collection<NavItem>(
+    db,
+    COLLECTIONS.navigation
+  )
+    .find({})
+    .sort({ order: 1 })
+    .toArray();
 };
+
 export const getSkills = async () => {
   const db = await getDatabase();
+
   const [skills, skillDetails, traits] = await Promise.all([
-    collection<{ category: string; items: string[] }>(db, COLLECTIONS.skills).find({}).sort({ order: 1 }).toArray(),
-    collection<SkillDetail & { order?: number }>(db, COLLECTIONS.skillDetails).find({}).sort({ order: 1 }).toArray(),
-    collection<{ value: string; order?: number }>(db, COLLECTIONS.traits).find({}).sort({ order: 1 }).toArray(),
+    collection<{ category: string; items: string[] }>(
+      db,
+      COLLECTIONS.skills
+    )
+      .find({})
+      .sort({ order: 1 })
+      .toArray(),
+
+    collection<SkillDetail & { order?: number }>(
+      db,
+      COLLECTIONS.skillDetails
+    )
+      .find({})
+      .sort({ order: 1 })
+      .toArray(),
+
+    collection<{ value: string; order?: number }>(
+      db,
+      COLLECTIONS.traits
+    )
+      .find({})
+      .sort({ order: 1 })
+      .toArray(),
   ]);
-  const grouped = Object.fromEntries(skills.map(({ category, items }) => [category, items]));
-  return { skills: grouped, skillDetails, professionalTraits: traits.map((item) => item.value) };
+
+  const grouped = Object.fromEntries(
+    skills.map(({ category, items }) => [category, items])
+  );
+
+  return {
+    skills: grouped,
+    skillDetails,
+    professionalTraits: traits.map((item) => item.value),
+  };
 };
+
 export const getServices = async () => {
   const db = await getDatabase();
-  return collection<Service & { order?: number }>(db, COLLECTIONS.services).find({}).sort({ order: 1 }).toArray();
+
+  return collection<Service & { order?: number }>(
+    db,
+    COLLECTIONS.services
+  )
+    .find({})
+    .sort({ order: 1 })
+    .toArray();
 };
+
 export const getExperience = async () => {
   const db = await getDatabase();
-  return collection<Experience & { order?: number }>(db, COLLECTIONS.experience).find({}).sort({ order: 1 }).toArray();
+
+  return collection<Experience & { order?: number }>(
+    db,
+    COLLECTIONS.experience
+  )
+    .find({})
+    .sort({ order: 1 })
+    .toArray();
 };
+
 export const getEducation = async () => {
   const db = await getDatabase();
-  return collection<Education & { order?: number }>(db, COLLECTIONS.education).find({}).sort({ order: 1 }).toArray();
+
+  return collection<Education & { order?: number }>(
+    db,
+    COLLECTIONS.education
+  )
+    .find({})
+    .sort({ order: 1 })
+    .toArray();
 };
+
 export const getLanguages = async () => {
   const db = await getDatabase();
-  return collection<Language & { order?: number }>(db, COLLECTIONS.languages).find({}).sort({ order: 1 }).toArray();
+
+  return collection<Language & { order?: number }>(
+    db,
+    COLLECTIONS.languages
+  )
+    .find({})
+    .sort({ order: 1 })
+    .toArray();
 };
+
 export const getSocials = async () => {
   const db = await getDatabase();
-  return collection<SocialLink & { order?: number }>(db, COLLECTIONS.socials).find({}).sort({ order: 1 }).toArray();
+
+  return collection<SocialLink & { order?: number }>(
+    db,
+    COLLECTIONS.socials
+  )
+    .find({})
+    .sort({ order: 1 })
+    .toArray();
 };
+
 export const getAllProjects = async (): Promise<Project[]> => {
   const db = await getDatabase();
-  return collection<Project>(db, COLLECTIONS.projects).find({}).sort({ year: -1, title: 1 }).toArray();
+
+  return collection<Project>(
+    db,
+    COLLECTIONS.projects
+  )
+    .find({})
+    .sort({ year: -1, title: 1 })
+    .toArray();
 };
-export const getProjectBySlug = async (slug: string): Promise<Project | null> => {
+
+export const getProjectBySlug = async (
+  slug: string
+): Promise<Project | null> => {
   const db = await getDatabase();
-  return collection<Project>(db, COLLECTIONS.projects).findOne({ slug });
+
+  const document = await collection<Project>(
+    db,
+    COLLECTIONS.projects
+  ).findOne({ slug });
+
+  return document as Project | null;
 };
+
 export const getFeaturedProjects = async (): Promise<Project[]> => {
   const db = await getDatabase();
-  return collection<Project>(db, COLLECTIONS.projects).find({ featured: true }).sort({ year: -1, title: 1 }).toArray();
+
+  return collection<Project>(
+    db,
+    COLLECTIONS.projects
+  )
+    .find({ featured: true })
+    .sort({ year: -1, title: 1 })
+    .toArray();
 };
