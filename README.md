@@ -1,6 +1,6 @@
 # Portfolio API
 
-Lightweight Express + TypeScript API for the portfolio frontend. It uses curated TypeScript data, has no database or authentication, and is deployable as a Vercel serverless function.
+Lightweight Express + TypeScript API for the portfolio frontend. Portfolio content is loaded from MongoDB, and the API is deployable as a Vercel serverless function.
 
 ## Development
 
@@ -10,7 +10,7 @@ npm install
 npm run dev
 ```
 
-The API listens on `http://localhost:5000` by default. Set SMTP values in `.env` to enable the contact endpoint.
+Set `MONGODB_URI` and `MONGODB_DATABASE` in `.env` before starting the API. The API listens on `http://localhost:5000` by default. Set SMTP values in `.env` to enable the contact endpoint.
 
 ## API endpoints
 
@@ -57,10 +57,17 @@ Errors use a consistent structure:
 }
 ```
 
-## Data organization
+## Database collections
 
-- `src/data/data.ts` contains profile, navigation, skills, traits, services, experience, education, languages, and social data.
-- `src/data/projects.ts` contains the detailed project catalog.
-- Repeated presentation copy should be avoided; project-specific details belong in the project record, while reusable profile information belongs in the profile data.
+The API reads portfolio content from the configured MongoDB database. It does not use a local `data.ts` file or embed the complete portfolio dataset in the source code.
 
-The project data is manually curated. GitHub repository results are only available through the separate GitHub endpoint and are not merged into the curated project catalog automatically.
+Collections used by the API:
+
+- `personal_info` and `profile` — primary profile information
+- `navigation` — ordered navigation items
+- `skills`, `skill_details`, and `professional_traits` — skills and professional traits
+- `services`, `experience`, `education`, and `languages` — portfolio history and services
+- `socials` — social links
+- `projects` — project catalog, including featured projects
+
+Singleton collections such as `personal_info` and `profile` must contain a document with `key: "main"`. Ordered collections use the `order` field where applicable. GitHub repository results are fetched separately through `/api/projects/github` and are not stored in the portfolio collection automatically.
