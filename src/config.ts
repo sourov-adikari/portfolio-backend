@@ -7,9 +7,7 @@ const requiredNumber = (value: string | undefined, fallback: number): number => 
 
 const defaultFrontendUrls = [
   "http://localhost:5173",
-  "https://portfolio-sca.vercel.app",
-  "https://portfolio-ashen-five-45.vercel.app",
-  "https://crispy-disco-7vppggqpjwjfqr6-8080.app.github.dev",
+  "https://sourovadikari.xyz"
 ];
 
 const configuredFrontendUrls = (process.env.FRONTEND_URLS ?? process.env.FRONTEND_URL ?? "")
@@ -36,11 +34,6 @@ export const config = {
     secure: process.env.SMTP_SECURE === "true",
   },
   contactEmail: process.env.CONTACT_EMAIL ?? "",
-  brevo: {
-    apiKey: process.env.BREVO_API_KEY ?? "",
-    listId: requiredNumber(process.env.BREVO_LIST_ID, 0),
-    doiTemplateId: requiredNumber(process.env.BREVO_DOI_TEMPLATE_ID, 0),
-  },
   githubUsername: process.env.GITHUB_USERNAME ?? "",
   githubToken: process.env.GITHUB_TOKEN ?? "",
 };
