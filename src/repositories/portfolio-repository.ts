@@ -36,7 +36,8 @@ const getSingleton = async <T extends Document>(
 ): Promise<T> => {
   const db = await getDatabase();
 
-  const filter = { key: "main" } as Filter<T>;
+  const filter = { key: "main" } as unknown as Filter<T>;
+
   const document = await collection<T>(db, name).findOne(filter);
 
   if (!document) {
