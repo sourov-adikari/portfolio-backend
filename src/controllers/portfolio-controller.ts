@@ -13,7 +13,7 @@ export const getPortfolio: RequestHandler = asyncHandler(async (_request, respon
   respond(response, { personalInfo, profileDetails, navItems, ...skills, experience, education, languages, socials, services, projects, featuredProjects });
 });
 export const getProjects: RequestHandler = asyncHandler(async (_request, response) => { const [projects, featuredProjects] = await Promise.all([getAllProjects(), getFeaturedProjects()]); respond(response, { projects, featuredProjects }); });
-export const getProject: RequestHandler = asyncHandler(async (request, response) => { const slug = request.params.slug?.trim(); if (!slug) throw new HttpError(400, "Project slug is required", "INVALID_PROJECT_SLUG"); const project = await getProjectBySlug(slug); if (!project) throw new HttpError(404, "Project not found", "PROJECT_NOT_FOUND"); respond(response, { project }); });
+export const getProject: RequestHandler = asyncHandler(async (request, response) => { const slugParam = request.params.slug; const slug = typeof slugParam === "string" ? slugParam.trim() : ""; if (!slug) { throw new HttpError(400, "Project slug is required", "INVALID_PROJECT_SLUG");} const project = await getProjectBySlug(slug); if (!project) { throw new HttpError(404, "Project not found", "PROJECT_NOT_FOUND");} respond(response, { project });});
 export const getSkills: RequestHandler = asyncHandler(async (_request, response) => respond(response, await getSkillsData()));
 export const getExperience: RequestHandler = asyncHandler(async (_request, response) => respond(response, { experience: await getExperienceData() }));
 export const getEducation: RequestHandler = asyncHandler(async (_request, response) => respond(response, { education: await getEducationData() }));
