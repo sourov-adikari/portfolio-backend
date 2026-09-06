@@ -27,6 +27,42 @@ Set `MONGODB_URI` and `MONGODB_DATABASE` in `.env` before starting the API. The 
 - `GET /api/projects/github` — public GitHub repository data
 - `POST /api/contact` — validated contact form submission
 
+## Newsletter API
+
+Subscribe an email address to the portfolio newsletter.
+
+`POST /api/newsletter/subscribe`
+
+Request (`Content-Type: application/json`):
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+Successful subscription:
+
+```json
+{
+  "success": true,
+  "message": "Subscription successful",
+  "status": "subscribed"
+}
+```
+
+Already subscribed:
+
+```json
+{
+  "success": true,
+  "message": "You are already subscribed",
+  "status": "already_subscribed"
+}
+```
+
+Invalid email addresses return `400` with an `INVALID_NEWSLETTER_EMAIL` error. The endpoint is rate limited to 3 requests per minute and returns `429` when the limit is exceeded. Database failures return `503`, and subscription email delivery failures return `502`.
+
 ## Response format
 
 Successful portfolio endpoints keep their existing top-level fields for frontend compatibility and also include:
